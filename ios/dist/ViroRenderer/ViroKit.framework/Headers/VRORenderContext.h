@@ -233,6 +233,16 @@ public:
         return _viewport;
     }
 
+    /*
+     Semantic texture from AR framework for semantic masking.
+     */
+    void setSemanticTexture(std::shared_ptr<VROTexture> semanticTexture) {
+        _semanticTexture = semanticTexture;
+    }
+    std::shared_ptr<VROTexture> getSemanticTexture() const {
+        return _semanticTexture;
+    }
+
 private:
     
     int _frame;
@@ -329,6 +339,11 @@ private:
      Current viewport dimensions.
      */
     VROViewport _viewport;
+
+    /*
+     Semantic texture from AR framework for semantic masking.
+     */
+    std::shared_ptr<VROTexture> _semanticTexture;
 
 };
 

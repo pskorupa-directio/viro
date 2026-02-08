@@ -73,6 +73,43 @@ export type ViroShaderUniform = {
   value: any;
 };
 
+/**
+ * Semantic mask mode determines how materials interact with semantic labels.
+ */
+export type ViroSemanticMaskMode = "showOnly" | "hide" | "blend";
+
+/**
+ * Semantic labels for AR scene understanding.
+ * These classify pixels into categories like sky, building, person, etc.
+ */
+export type ViroSemanticLabel =
+  | "sky"
+  | "building"
+  | "tree"
+  | "road"
+  | "sidewalk"
+  | "terrain"
+  | "structure"
+  | "object"
+  | "vehicle"
+  | "person"
+  | "water";
+
+/**
+ * Configuration for semantic masking on a material.
+ * Allows materials to show/hide based on AR semantic segmentation.
+ */
+export type ViroSemanticMaskConfig = {
+  /** How the material interacts with semantic labels */
+  mode: ViroSemanticMaskMode;
+  /** List of semantic labels to match against */
+  labels: ViroSemanticLabel[];
+  /** Enable soft edges for smoother transitions (default: true) */
+  softEdge?: boolean;
+  /** Radius for soft edge blur in pixels (default: 2.0) */
+  edgeRadius?: number;
+};
+
 export type ViroMaterial = {
   shininess?: number;
   fresnelExponent?: number;
@@ -102,11 +139,34 @@ export type ViroMaterial = {
   ambientOcclusionTexture?: any; // TODO: types
   shaderModifiers?: ViroShaderModifiers;
   materialUniforms?: ViroShaderUniform[];
+  /** Semantic masking configuration for AR scene understanding */
+  semanticMask?: ViroSemanticMaskConfig;
 };
 
 export type ViroMaterialDict = {
   [key: string]: ViroMaterial;
 };
+
+/**
+ * Convert semantic label name to bit flag.
+ * @internal
+ */
+function labelNameToBit(label: ViroSemanticLabel): number {
+  const map: Record<ViroSemanticLabel, number> = {
+    sky: 1 << 1,
+    building: 1 << 2,
+    tree: 1 << 3,
+    road: 1 << 4,
+    sidewalk: 1 << 5,
+    terrain: 1 << 6,
+    structure: 1 << 7,
+    object: 1 << 8,
+    vehicle: 1 << 9,
+    person: 1 << 10,
+    water: 1 << 11,
+  };
+  return map[label] || 0;
+}
 
 export class ViroMaterials {
   static createMaterials(materials: ViroMaterialDict) {
@@ -149,6 +209,23 @@ export class ViroMaterials {
         } else if (prop.endsWith("color") || prop.endsWith("Color")) {
           var color = processColor(material[prop]);
           resultMaterial[prop] = color;
+        } else if (prop === "semanticMask") {
+          // Process semantic mask configuration
+          const config = material[prop] as ViroSemanticMaskConfig;
+          if (config && config.labels && config.labels.length > 0) {
+            // Convert labels array to bit mask
+            let labelMask = 0;
+            for (const label of config.labels) {
+              labelMask |= labelNameToBit(label);
+            }
+
+            resultMaterial.semanticMask = {
+              mode: config.mode,
+              labelMask: labelMask,
+              softEdge: config.softEdge !== false, // default true
+              edgeRadius: config.edgeRadius || 2.0,
+            };
+          }
         } else {
           //just apply material property directly.
           resultMaterial[prop] = material[prop];

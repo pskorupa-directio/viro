@@ -439,7 +439,7 @@ RCT_EXPORT_METHOD(updateShaderUniform:(NSString *)materialName
             } else if ([@"materialUniforms" caseInsensitiveCompare:materialPropertyName] == NSOrderedSame ||
                        [@"shaderUniforms" caseInsensitiveCompare:materialPropertyName] == NSOrderedSame) {
                 id uniformsData = material[key];
-                
+
                 if ([uniformsData isKindOfClass:[NSArray class]]) {
                     NSArray *uniforms = (NSArray *)uniformsData;
                     for (NSDictionary *uniform in uniforms) {
@@ -456,6 +456,32 @@ RCT_EXPORT_METHOD(updateShaderUniform:(NSString *)materialName
                         id value = uniform[@"value"];
                         [self setUniformForMaterial:vroMaterial name:name type:type value:value];
                     }
+                }
+            } else if ([@"semanticMask" caseInsensitiveCompare:materialPropertyName] == NSOrderedSame) {
+                NSDictionary *config = material[key];
+                if (config) {
+                    NSString *modeStr = config[@"mode"];
+                    VROSemanticMaskMode mode = VROSemanticMaskMode::ShowOnly;
+                    if ([@"hide" caseInsensitiveCompare:modeStr] == NSOrderedSame) {
+                        mode = VROSemanticMaskMode::Hide;
+                    } else if ([@"blend" caseInsensitiveCompare:modeStr] == NSOrderedSame) {
+                        mode = VROSemanticMaskMode::Blend;
+                    }
+
+                    NSNumber *labelMaskNum = config[@"labelMask"];
+                    uint16_t labelMask = labelMaskNum ? [labelMaskNum unsignedShortValue] : 0;
+
+                    NSNumber *softEdgeNum = config[@"softEdge"];
+                    BOOL softEdge = softEdgeNum ? [softEdgeNum boolValue] : YES;
+
+                    NSNumber *edgeRadiusNum = config[@"edgeRadius"];
+                    float edgeRadius = edgeRadiusNum ? [edgeRadiusNum floatValue] : 2.0f;
+
+                    vroMaterial->setSemanticMaskEnabled(true);
+                    vroMaterial->setSemanticMaskMode(mode);
+                    vroMaterial->setSemanticLabelMask(labelMask);
+                    vroMaterial->setSemanticMaskSoftEdge(softEdge);
+                    vroMaterial->setSemanticMaskEdgeRadius(edgeRadius);
                 }
             }
         }

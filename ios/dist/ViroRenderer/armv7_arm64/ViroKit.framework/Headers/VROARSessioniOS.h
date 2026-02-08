@@ -153,6 +153,7 @@ public:
     bool isSemanticModeSupported() const override;
     void setSemanticModeEnabled(bool enabled) override;
     float getSemanticLabelFraction(VROSemanticLabel label) const;
+    std::shared_ptr<VROTexture> getSemanticTexture() const override;
 
     /*
      Internal methods.
@@ -247,7 +248,13 @@ private:
      Background to be assigned to the VROScene.
      */
     std::shared_ptr<VROTexture> _background;
-    
+
+    /*
+     Semantic segmentation texture (when semantic mode is enabled).
+     */
+    std::shared_ptr<VROTexture> _semanticTexture;
+    mutable std::vector<uint8_t> _semanticBuffer;
+
     /*
      Video texture cache used for transferring camera content to OpenGL.
      */

@@ -43,6 +43,29 @@ export type ViroShaderUniform = {
     type: "float" | "vec2" | "vec3" | "vec4" | "mat4" | "sampler2D";
     value: any;
 };
+/**
+ * Semantic mask mode determines how materials interact with semantic labels.
+ */
+export type ViroSemanticMaskMode = "showOnly" | "hide" | "blend";
+/**
+ * Semantic labels for AR scene understanding.
+ * These classify pixels into categories like sky, building, person, etc.
+ */
+export type ViroSemanticLabel = "sky" | "building" | "tree" | "road" | "sidewalk" | "terrain" | "structure" | "object" | "vehicle" | "person" | "water";
+/**
+ * Configuration for semantic masking on a material.
+ * Allows materials to show/hide based on AR semantic segmentation.
+ */
+export type ViroSemanticMaskConfig = {
+    /** How the material interacts with semantic labels */
+    mode: ViroSemanticMaskMode;
+    /** List of semantic labels to match against */
+    labels: ViroSemanticLabel[];
+    /** Enable soft edges for smoother transitions (default: true) */
+    softEdge?: boolean;
+    /** Radius for soft edge blur in pixels (default: 2.0) */
+    edgeRadius?: number;
+};
 export type ViroMaterial = {
     shininess?: number;
     fresnelExponent?: number;
@@ -72,6 +95,8 @@ export type ViroMaterial = {
     ambientOcclusionTexture?: any;
     shaderModifiers?: ViroShaderModifiers;
     materialUniforms?: ViroShaderUniform[];
+    /** Semantic masking configuration for AR scene understanding */
+    semanticMask?: ViroSemanticMaskConfig;
 };
 export type ViroMaterialDict = {
     [key: string]: ViroMaterial;

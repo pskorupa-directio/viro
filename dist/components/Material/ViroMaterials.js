@@ -23,6 +23,26 @@ const resolveAssetSource_1 = __importDefault(require("react-native/Libraries/Ima
 var MaterialManager = react_native_1.NativeModules.VRTMaterialManager ||
     react_native_1.TurboModuleRegistry.get("VRTMaterialManager");
 console.log("VRTMaterialManager lookup:", MaterialManager ? "FOUND" : "NOT FOUND");
+/**
+ * Convert semantic label name to bit flag.
+ * @internal
+ */
+function labelNameToBit(label) {
+    const map = {
+        sky: 1 << 1,
+        building: 1 << 2,
+        tree: 1 << 3,
+        road: 1 << 4,
+        sidewalk: 1 << 5,
+        terrain: 1 << 6,
+        structure: 1 << 7,
+        object: 1 << 8,
+        vehicle: 1 << 9,
+        person: 1 << 10,
+        water: 1 << 11,
+    };
+    return map[label] || 0;
+}
 class ViroMaterials {
     static createMaterials(materials) {
         var result = {};
@@ -64,6 +84,23 @@ class ViroMaterials {
                 else if (prop.endsWith("color") || prop.endsWith("Color")) {
                     var color = (0, react_native_1.processColor)(material[prop]);
                     resultMaterial[prop] = color;
+                }
+                else if (prop === "semanticMask") {
+                    // Process semantic mask configuration
+                    const config = material[prop];
+                    if (config && config.labels && config.labels.length > 0) {
+                        // Convert labels array to bit mask
+                        let labelMask = 0;
+                        for (const label of config.labels) {
+                            labelMask |= labelNameToBit(label);
+                        }
+                        resultMaterial.semanticMask = {
+                            mode: config.mode,
+                            labelMask: labelMask,
+                            softEdge: config.softEdge !== false, // default true
+                            edgeRadius: config.edgeRadius || 2.0,
+                        };
+                    }
                 }
                 else {
                     //just apply material property directly.

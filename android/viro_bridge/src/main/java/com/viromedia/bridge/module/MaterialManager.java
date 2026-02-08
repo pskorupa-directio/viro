@@ -401,6 +401,9 @@ public class MaterialManager extends ReactContextBaseJavaModule {
         // Parse material/shader uniforms
         parseShaderUniforms(nativeMaterial, materialMap);
 
+        // Parse semantic mask configuration
+        parseSemanticMask(nativeMaterial, materialMap);
+
         // We don't need to hold a Java texture reference after assigning the texture to the material.
         // Make an exception for the videoTexture as we use the nativeref to play,pause, loop the video.
         if (diffuseTexture != null && videoTexture == null) {
@@ -597,6 +600,46 @@ public class MaterialManager extends ReactContextBaseJavaModule {
                 Log.d("VRTMaterialManager", "Set mat4 uniform: " + name);
             }
         }
+    }
+
+    private void parseSemanticMask(Material material, ReadableMap materialMap) {
+        if (!materialMap.hasKey("semanticMask")) {
+            return;
+        }
+
+        ReadableMap config = materialMap.getMap("semanticMask");
+        if (config == null) {
+            return;
+        }
+
+        Log.d("VRTMaterialManager", "Parsing semantic mask configuration");
+
+        // Parse mode
+        String modeStr = config.hasKey("mode") ? config.getString("mode") : "showOnly";
+        int mode = 0; // ShowOnly
+        if ("hide".equalsIgnoreCase(modeStr)) {
+            mode = 1; // Hide
+        } else if ("blend".equalsIgnoreCase(modeStr)) {
+            mode = 2; // Blend
+        }
+
+        // Parse label mask
+        int labelMask = config.hasKey("labelMask") ? config.getInt("labelMask") : 0;
+
+        // Parse soft edge
+        boolean softEdge = !config.hasKey("softEdge") || config.getBoolean("softEdge");
+
+        // Parse edge radius
+        double edgeRadius = config.hasKey("edgeRadius") ? config.getDouble("edgeRadius") : 2.0;
+
+        // Set properties on material
+        material.setSemanticMaskEnabled(true);
+        material.setSemanticMaskMode(mode);
+        material.setSemanticLabelMask((short)labelMask);
+        material.setSemanticMaskSoftEdge(softEdge);
+        material.setSemanticMaskEdgeRadius((float)edgeRadius);
+
+        Log.d("VRTMaterialManager", "Semantic mask configured: mode=" + mode + ", labelMask=" + labelMask);
     }
 
     private Texture parseTexture(Image image, boolean sRGB, boolean mipmap,

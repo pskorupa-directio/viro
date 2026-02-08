@@ -68,6 +68,36 @@ enum class VROSemanticMode {
 };
 
 /*
+ * Semantic mask mode determines how materials interact with semantic labels.
+ */
+enum class VROSemanticMaskMode {
+    ShowOnly,  // Show material only where semantic labels match
+    Hide,      // Hide material where semantic labels match
+    Blend      // Blend material based on semantic label confidence
+};
+
+/*
+ * Bit flags for semantic labels, used for efficient multi-label masking.
+ * Each label corresponds to a bit position that can be combined with OR.
+ * Using namespace to avoid enum conflicts with VROObjectRecognizer.
+ */
+namespace VROSemanticLabelMask {
+    static const uint16_t None      = 0;
+    static const uint16_t Sky       = 1 << 1;
+    static const uint16_t Building  = 1 << 2;
+    static const uint16_t Tree      = 1 << 3;
+    static const uint16_t Road      = 1 << 4;
+    static const uint16_t Sidewalk  = 1 << 5;
+    static const uint16_t Terrain   = 1 << 6;
+    static const uint16_t Structure = 1 << 7;
+    static const uint16_t Object    = 1 << 8;
+    static const uint16_t Vehicle   = 1 << 9;
+    static const uint16_t Person    = 1 << 10;
+    static const uint16_t Water     = 1 << 11;
+    static const uint16_t All       = 0xFFFF;
+}
+
+/*
  * Semantic image data containing label IDs for each pixel.
  * The image is a single-channel buffer where each byte represents
  * a VROSemanticLabel value (0-11).

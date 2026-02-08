@@ -519,6 +519,16 @@ public:
         return _semanticModeEnabled;
     }
 
+    /*
+     * Get the semantic texture for the current frame.
+     * Returns nullptr if semantic mode is not enabled or not supported.
+     * The texture is a single-channel R8 texture where each pixel value
+     * represents a VROSemanticLabel (0-11).
+     */
+    virtual std::shared_ptr<VROTexture> getSemanticTexture() const {
+        return nullptr;
+    }
+
 protected:
 
     VROTrackingType _trackingType;

@@ -37,6 +37,7 @@
 #include "VROStringUtil.h"
 #include "VROThreadRestricted.h"
 #include "VRODriver.h"
+#include "VROSemantics.h"
 
 enum class VROFace {
     Front,
@@ -422,7 +423,44 @@ public:
         _shaderModifiers.clear();
         updateSubstrate();
     }
-    
+
+    /*
+     Semantic Masking - AR scene understanding integration.
+     Allows materials to show/hide based on semantic segmentation data.
+     */
+    void setSemanticMaskEnabled(bool enabled);
+    bool isSemanticMaskEnabled() const {
+        return _semanticMaskEnabled;
+    }
+
+    void setSemanticMaskMode(VROSemanticMaskMode mode) {
+        _semanticMaskMode = mode;
+    }
+    VROSemanticMaskMode getSemanticMaskMode() const {
+        return _semanticMaskMode;
+    }
+
+    void setSemanticLabelMask(uint16_t mask) {
+        _semanticLabelMask = mask;
+    }
+    uint16_t getSemanticLabelMask() const {
+        return _semanticLabelMask;
+    }
+
+    void setSemanticMaskSoftEdge(bool soft) {
+        _semanticMaskSoftEdge = soft;
+    }
+    bool isSemanticMaskSoftEdge() const {
+        return _semanticMaskSoftEdge;
+    }
+
+    void setSemanticMaskEdgeRadius(float radius) {
+        _semanticMaskEdgeRadius = radius;
+    }
+    float getSemanticMaskEdgeRadius() const {
+        return _semanticMaskEdgeRadius;
+    }
+
     /*
      Make a snapshot of this material and cross-fade that snapshot out,
      bringing in the current material. Used to animate material changes.
@@ -657,7 +695,16 @@ private:
     std::map<std::string, VROVector4f> _shaderUniformVec4s;
     std::map<std::string, VROMatrix4f> _shaderUniformMat4s;
     std::map<std::string, std::shared_ptr<VROTexture>> _shaderUniformTextures;
-    
+
+    /*
+     Semantic masking properties for AR scene understanding.
+     */
+    bool _semanticMaskEnabled = false;
+    VROSemanticMaskMode _semanticMaskMode = VROSemanticMaskMode::ShowOnly;
+    uint16_t _semanticLabelMask = 0;
+    bool _semanticMaskSoftEdge = true;
+    float _semanticMaskEdgeRadius = 2.0f;
+
     /*
      Representation of this material in the underlying graphics hardware.
      */
