@@ -256,7 +256,13 @@ public:
     void setOcclusionMode(VROOcclusionMode mode);
     void setDepthTexture(std::shared_ptr<VROTexture> depthTexture);
     void setDepthTextureTransform(VROMatrix4f transform);
-    
+
+    /*
+     Set AR frame and camera texture for CAMERA_TEXTURE support.
+     */
+    void setARFrame(const std::unique_ptr<VROARFrame> &arFrame);
+    void setCameraTexture(std::shared_ptr<VROTexture> cameraTexture);
+
 #pragma mark - Camera
    
     /*

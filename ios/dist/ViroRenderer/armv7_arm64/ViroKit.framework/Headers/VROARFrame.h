@@ -120,6 +120,13 @@ public:
     virtual std::shared_ptr<VROARPointCloud> getPointCloud() = 0;
 
     /*
+     Get the camera image texture for this frame.
+     This is the live AR camera feed that can be used as a texture source.
+     Returns nullptr if not available.
+     */
+    virtual std::shared_ptr<VROTexture> getCameraTexture() { return nullptr; }
+
+    /*
      Get the depth texture for this frame, if available.
      Returns nullptr if depth is not supported or not enabled.
      The texture contains depth values in meters as 16-bit unsigned integers

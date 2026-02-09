@@ -338,7 +338,30 @@ RCT_EXPORT_METHOD(updateShaderUniform:(NSString *)materialName
             
             NSString *path = [self parseImagePath:material[key]];
             if (path != nil) {
-                if ([self isVideoTexture:path]) {
+                // Check for special CAMERA_TEXTURE type
+                if ([@"CAMERA_TEXTURE" caseInsensitiveCompare:path] == NSOrderedSame) {
+                    // Enable camera texture mode for this material
+                    vroMaterial->setUsesCameraTexture(true);
+
+                    // Convert property name to lowercase C++ string (e.g., "diffuseTexture" -> "diffuse")
+                    NSString *lowerPropertyName = [materialPropertyName lowercaseString];
+                    std::string cppPropertyName;
+                    if ([lowerPropertyName hasSuffix:@"texture"]) {
+                        // Remove "texture" suffix
+                        NSString *baseName = [lowerPropertyName substringToIndex:lowerPropertyName.length - 7];
+                        cppPropertyName = std::string([baseName UTF8String]);
+                    } else {
+                        cppPropertyName = std::string([lowerPropertyName UTF8String]);
+                    }
+                    vroMaterial->setCameraTextureProperty(cppPropertyName);
+
+                    NSLog(@"VRTMaterialManager: Enabled CAMERA_TEXTURE for property '%@' (C++: '%s')",
+                          materialPropertyName, cppPropertyName.c_str());
+
+                    // Don't process further - camera texture will be bound at render time
+                    continue;
+                }
+                else if ([self isVideoTexture:path]) {
                      std::shared_ptr<VROVideoTextureiOS> texture = std::make_shared<VROVideoTextureiOS>(VROStereoMode::None);
                     [materialWrapper setVideoTexturePathForMaterialProp:materialPropertyName path:path];
                     [self setTextureForMaterial:vroMaterial texture:texture name:materialPropertyName];
@@ -346,7 +369,7 @@ RCT_EXPORT_METHOD(updateShaderUniform:(NSString *)materialName
                 } else {
                     BOOL sRGB = [materialPropertyName caseInsensitiveCompare:@"diffuseTexture"] == NSOrderedSame
                     || [materialPropertyName caseInsensitiveCompare:@"ambientOcclusionTexture"] == NSOrderedSame;
-                    
+
                     std::shared_ptr<VROTexture> texture = [self createTexture2D:material[key] sRGB:sRGB];
                     [self loadProperties:material forTexture:texture];
                     [self setTextureForMaterial:vroMaterial texture:texture name:materialPropertyName];

@@ -422,7 +422,35 @@ public:
         _shaderModifiers.clear();
         updateSubstrate();
     }
-    
+
+    /*
+     Camera texture support for AR effects.
+     */
+    void setUsesCameraTexture(bool uses) {
+        _usesCameraTexture = uses;
+        updateSubstrate();
+    }
+    bool usesCameraTexture() const {
+        return _usesCameraTexture;
+    }
+
+    void setCameraTextureProperty(std::string property) {
+        _cameraTextureProperty = property;
+    }
+    std::string getCameraTextureProperty() const {
+        return _cameraTextureProperty;
+    }
+
+    /*
+     Bind camera texture and matrices to this material.
+     Called each frame in render loop for materials using camera texture.
+
+     @param cameraTexture The AR camera background texture
+     @param context Current render context (for camera matrices)
+     */
+    void bindCameraTexture(std::shared_ptr<VROTexture> cameraTexture,
+                          const VRORenderContext &context);
+
     /*
      Make a snapshot of this material and cross-fade that snapshot out,
      bringing in the current material. Used to animate material changes.
@@ -599,7 +627,18 @@ private:
      Modifiers to alter the shader code.
      */
     std::vector<std::shared_ptr<VROShaderModifier>> _shaderModifiers;
-    
+
+    /*
+     Camera texture support for AR effects.
+     When true, this material uses the AR camera feed as a texture.
+     */
+    bool _usesCameraTexture;
+
+    /*
+     Property name that uses camera texture (e.g., "diffuseTexture").
+     */
+    std::string _cameraTextureProperty;
+
     /*
      If fragments of this material exceed this value, then those fragments will
      glow. If less than 0, bloom will be disabled. Defaults to -1.

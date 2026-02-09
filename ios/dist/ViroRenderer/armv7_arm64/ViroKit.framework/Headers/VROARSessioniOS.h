@@ -88,7 +88,9 @@ public:
     std::unique_ptr<VROARFrame> &updateFrame();
     std::unique_ptr<VROARFrame> &getLastFrame();
     std::shared_ptr<VROTexture> getCameraBackgroundTexture();
-    
+
+    std::shared_ptr<VRODriver> getDriver() const { return _driver; }
+
     void setViewport(VROViewport viewport);
     void setOrientation(VROCameraOrientation orientation);
     

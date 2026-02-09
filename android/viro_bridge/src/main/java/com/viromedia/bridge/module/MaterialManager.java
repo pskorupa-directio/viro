@@ -244,6 +244,10 @@ public class MaterialManager extends ReactContextBaseJavaModule {
         int chromaKeyFilteringColor = Color.GREEN;
         boolean chromaFilteringEnabled = false;
         Texture diffuseTexture = null;
+
+        // Camera texture support
+        boolean usesCameraTexture = false;
+        String cameraTextureProperty = null;
         float diffuseIntensity = 1.0f;
         Texture specularTexture = null;
         float shininess = 2.0f;
@@ -287,7 +291,22 @@ public class MaterialManager extends ReactContextBaseJavaModule {
 
                 Uri uri = Helper.parseUri(path, mContext);
                 if (path != null) {
-                    if (isVideoTexture(path, type)) {
+                    // Check for special CAMERA_TEXTURE type
+                    if (path.equalsIgnoreCase("CAMERA_TEXTURE")) {
+                        usesCameraTexture = true;
+
+                        // Convert property name to lowercase base name (e.g., "diffuseTexture" -> "diffuse")
+                        String lowerPropertyName = materialPropertyName.toLowerCase();
+                        if (lowerPropertyName.endsWith("texture")) {
+                            cameraTextureProperty = lowerPropertyName.substring(0, lowerPropertyName.length() - 7);
+                        } else {
+                            cameraTextureProperty = lowerPropertyName;
+                        }
+
+                        Log.d("VRTMaterialManager", "Enabled CAMERA_TEXTURE for property '" + materialPropertyName +
+                              "' (native: '" + cameraTextureProperty + "')");
+                    }
+                    else if (isVideoTexture(path, type)) {
                         materialWrapper.addVideoTexturePath(materialPropertyName, uri);
                         diffuseTexture = videoTexture;
                     } else {
@@ -382,7 +401,14 @@ public class MaterialManager extends ReactContextBaseJavaModule {
                 cullMode, transparencyMode, blendMode, bloomThreshold, writesToDepthBuffer,
                 readsFromDepthBuffer, colorWriteMask);
 
-                nativeMaterial.setName(materialName);
+        nativeMaterial.setName(materialName);
+
+        // Set camera texture properties if needed
+        if (usesCameraTexture && cameraTextureProperty != null) {
+            nativeMaterial.setUsesCameraTexture(true);
+            nativeMaterial.setCameraTextureProperty(cameraTextureProperty);
+            Log.d("VRTMaterialManager", "Material '" + materialName + "' configured for CAMERA_TEXTURE on property '" + cameraTextureProperty + "'");
+        }
         if (chromaFilteringEnabled) {
             nativeMaterial.setChromaKeyFilteringEnabled(chromaFilteringEnabled);
             nativeMaterial.setChromaKeyFilteringColor(chromaKeyFilteringColor);

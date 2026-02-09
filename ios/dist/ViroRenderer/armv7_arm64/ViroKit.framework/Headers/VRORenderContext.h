@@ -199,6 +199,26 @@ public:
     }
 
     /*
+     Camera texture support - live AR camera feed.
+     */
+    void setCameraTexture(std::shared_ptr<VROTexture> cameraTexture) {
+        _cameraTexture = cameraTexture;
+    }
+    std::shared_ptr<VROTexture> getCameraTexture() const {
+        return _cameraTexture;
+    }
+
+    /*
+     AR Frame support - current AR frame for accessing camera data.
+     */
+    void setARFrame(std::shared_ptr<VROARFrame> arFrame) {
+        _arFrame = arFrame;
+    }
+    std::shared_ptr<VROARFrame> getARFrame() const {
+        return _arFrame;
+    }
+
+    /*
      Occlusion support - depth texture from AR framework for real-world occlusion.
      */
     void setDepthTexture(std::shared_ptr<VROTexture> depthTexture) {
@@ -309,6 +329,16 @@ private:
      The input controller being used.
      */
     std::shared_ptr<VROInputControllerBase> _inputController;
+
+    /*
+     Camera texture from AR framework (live camera feed).
+     */
+    std::shared_ptr<VROTexture> _cameraTexture;
+
+    /*
+     Current AR frame (for accessing camera data).
+     */
+    std::shared_ptr<VROARFrame> _arFrame;
 
     /*
      Depth texture from AR framework for occlusion.
