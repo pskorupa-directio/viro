@@ -66,6 +66,11 @@ public class VRTARSceneNavigatorManager extends VRTViroViewGroupManager<VRTARSce
         navigator.setAutoFocusEnabled(enabled);
     }
 
+    @ReactProp(name = "torchEnabled", defaultBoolean = false)
+    public void setTorchEnabled(VRTARSceneNavigator navigator, boolean enabled) {
+        navigator.setTorchEnabled(enabled);
+    }
+
 
     @ReactProp(name = "hdrEnabled", defaultBoolean = true)
     public void setHDREnabled(VRTARSceneNavigator navigator, boolean enabled) {
